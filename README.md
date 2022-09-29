@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/vejnar/LabxPipe/main/img/logo.svg" alt="LabxPipe" width="45%" />
 
-[![MPLv2](https://img.shields.io/aur/license/LabxPipe?color=1793d1&style=for-the-badge)](https://mozilla.org/MPL/2.0/)
+[![MPLv2](https://img.shields.io/aur/license/python-labxpipe?color=1793d1&style=for-the-badge)](https://mozilla.org/MPL/2.0/)
 
 * Integrated with [LabxDB](https://labxdb.vejnar.org): all required annotations (labels, strand, paired etc) are retrieved from LabxDB. This is optional.
 * Based on existing robust technologies. No new language.
