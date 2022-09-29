@@ -1,0 +1,25 @@
+{
+    "path_seq_run": "/plus/data/seq/by_run",
+    "path_seq_raw": "/plus/data/seq/raw",
+    "path_seq_prepared": "/plus/data/seq/prepared",
+
+    "ref_info_source": ["db"],
+
+    "path_annots": "/plus/data/sai/annots",
+
+    "fastq_exts": [".txt.gz", ".txt.lz4", ".fastq", ".fastq.gz", ".fastq.lz4", ".fastq.zst"],
+
+    "adaptors": {
+        "sRNA 1.0": "TCGTATGCCGTCTTCTGCTTGT",
+        "sRNA 1.5": "ATCTCGTATGCCGTCTTCTGCTTG",
+        "sRNA alt1": "CTGTAGGCACCATCAATTCGTATGCCGTCTTCTGCTTG",
+        "TruSeq Index": "AGATCGGAAGAGCACACGTCTGAA",
+        "TruSeq-DMS Index": "CTGTAGGCACCATCAATAGATCGGAAGAGCACACGTCTGAA",
+        "TruSeq-DMS+A Index": "ACTGTAGGCACCATCAATAGATCGGAAGAGCACACGTCTGAA",
+        "TruSeq Universal": "AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+        "TruSeq D501 Index": "AATGATACGGCGACCACCGAGATCTACACTATAGCCTACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+        "BL1 3' Non-multiplex": "CTGTAGGCACCATCAAT",
+        "Solexa P3": "AGATCGGAAGAGCGGTTCAGCAGGAATGCC",
+        "QuantSeq Fwd Index": "GATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+    }
+}

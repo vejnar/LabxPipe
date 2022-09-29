@@ -1,0 +1,63 @@
+{
+    "name": "mrna_seq",
+
+    "path_output": "/plus/scratch/users/charles/labxpipe/mrna_seq",
+    "path_bowtie2_index": "/plus/scratch/sai/bowtie2_indices",
+    "path_star_index": "/plus/scratch/sai/star_indices",
+    
+    "logging_level": "info",
+
+    "run_refs": [
+        "AGR000850",
+        "AGR000912"
+    ],
+
+    "analysis": [
+        {
+            "step_name": "preparing",
+            "step_function": "readknead",
+            "step_desc": "Trimming reads.",
+            "force": false,
+            "ops_r1": [{"name": "rename", "base36": true},
+                       {"name": "trim", "algo": "bktrim_paired", "epsilon": 0.15, "epsilon_indel": 0.1, "keep": ["no_trim","trim_exact","trim_align"], "sequence":"AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC", "sequence_paired":"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA"},
+                       {"name": "length", "min_length": 20}],
+            "plot_fastq_in": true,
+            "plot_fastq": true,
+            "zip_fastq_out": "lz4"
+        },
+        {
+            "step_name": "aligning",
+            "step_function": "star",
+            "step_desc": "Aligning reads to mRNAs.",
+            "force": false,
+            "index": "danrer_genome_all_cdna_all_ensembl104_grcz11_sjdboverhang75",
+            "output_type": ["SAM"],
+            "compress_sam": true,
+            "options": ["--readMapNumber", "1000000", "--alignEndsType", "Local", "--sjdbScore", "2", "--outFilterMultimapNmax", "1000", "--outMultimapperOrder", "Random"]
+        },
+        {
+            "step_name": "counting",
+            "step_desc": "Counts for genes and transcripts.",
+            "force": false,
+            "inputs": [{"step": "aligning", "fname": "accepted_hits.sam.zst", "type": "sam"}],
+            "features": [
+                {"name": "transcript_all",
+                 "path_json": "danrer_cdna_all_ensembl104.fon1.json",
+                 "fon_name": "transcript_stable_id",
+                 "read_min_overlap": 10},
+                {"name": "gene_all",
+                 "path_json": "danrer_cdna_union2gene_all_ensembl104.fon1.json",
+                 "fon_name": "gene_stable_id",
+                 "read_min_overlap": 10}
+            ]
+        },
+        {
+            "step_name": "cleaning",
+            "step_desc": "Remove intermediate files",
+            "force": false,
+            "steps": [
+                {"step_name": "preparing", "pattern": "*.fastq.lz4"}
+            ]
+        }
+    ]
+}

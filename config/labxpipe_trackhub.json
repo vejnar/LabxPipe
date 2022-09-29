@@ -1,0 +1,37 @@
+{
+    "prefix_hub": "Giraldez_Lab_",
+    "prefix_short_label": "Giraldez Lab, Yale, ",
+    "prefix_long_label": "Giraldez Lab, Yale Genetics, ",
+    "prefix_email": "giraldezlab@gmail.com",
+
+    "colors": {
+        "Blue0": "192,237,255",
+        "Blue1": "100,231,255",
+        "Blue2": "34,195,255",
+        "Blue3": "30,160,255",
+        "Blue4": "40,111,201",
+        "Blue5": "45,76,124",
+        "Green1": "169,248,221",
+        "Green2": "127,207,194",
+        "Green3": "31,172,157",
+        "Green4": "0,128,128",
+        "Green5": "10,99,99",
+        "Indigo1": "198,198,255",
+        "Indigo2": "166,150,255",
+        "Indigo3": "114,98,221",
+        "Indigo4": "88,93,171",
+        "Indigo5": "48,51,163",
+        "Orange1": "238,221,130",
+        "Orange2": "255,182,111",
+        "Orange3": "255,149,149",
+        "Orange4": "238,92,60",
+        "Orange5": "204,64,112",
+        "Orange6": "153,17,17",
+        "Violet1": "255,208,219",
+        "Violet2": "242,169,240",
+        "Violet3": "195,122,206",
+        "Violet4": "164,128,235",
+        "Violet5": "129,55,168",
+        "Violet6": "85,0,80"
+    }
+}

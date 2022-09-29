@@ -1,0 +1,59 @@
+{
+    "name": "chip_seq",
+
+    "path_output": "/plus/scratch/users/charles/labxpipe/chip_seq",
+    "path_bowtie2_index": "/plus/scratch/sai/bowtie2_indices",
+    "path_star_index": "/plus/scratch/sai/star_indices",
+
+    "logging_level": "info",
+
+    "run_refs": [
+        "AGR003924",
+        "AGR003925",
+        "AGR003926",
+        "AGR003927"
+    ],
+
+    "analysis": [
+        {
+            "step_name": "preparing",
+            "step_desc": "Trimming, renaming & filtering reads.",
+            "force": false,
+            "ops_r1": [{"name": "rename", "base36": true},
+                       {"name": "trim", "end":3, "algo":"bktrim_paired", "epsilon":0.15, "epsilon_indel":0.1, "min_overlap":2, "keep":["no_trim","trim_exact","trim_align"], "sequence":"AGATCGGAAGAGCACACGTCTGAACTCCAGTCA", "sequence_paired":"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"},
+                       {"name": "length", "min_length": 20}],
+            "plot_fastq": true,
+            "zip_fastq_out": "lz4"
+        },
+        {
+            "step_name": "genomic_aligning",
+            "step_desc": "Aligning reads to genome.",
+            "force": false,
+            "index": "danrer_genome_all_ensembl_grcz11/seq",
+            "output": "accepted_hits.sam",
+            "options": ["--no-unal", "--no-discordant", "--no-mixed"],
+            "create_bam": true
+        },
+        {
+            "step_name": "uniquify",
+            "step_function": "samtools_uniquify",
+            "step_desc": "Remove duplicates.",
+            "force": false,
+            "sort_by_name_bam": true,
+            "options": []
+        },
+        {
+            "step_name": "cleaning",
+            "step_desc": "Remove intermediate files",
+            "force": false,
+            "steps": [
+                {"step_name": "preparing", "pattern": "*.fastq.lz4"},
+                {"step_name": "genomic_aligning", "pattern": "*.sam"},
+                {"step_name": "genomic_aligning", "pattern": "*.bam"},
+                {"step_name": "uniquify", "pattern": "*fixmate.bam"},
+                {"step_name": "uniquify", "pattern": "*sort.bam"},
+                {"step_name": "uniquify", "pattern": "*st.bam"}
+            ]
+        }
+    ]
+}
