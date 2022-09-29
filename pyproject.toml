@@ -3,9 +3,9 @@ requires = ["setuptools>=61", "setuptools_scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "LabxPipe"
+name = "labxpipe"
 authors = [{name = "Charles E. Vejnar"}]
-description = "LabxPipe"
+description = "Genomics pipelines"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "Mozilla Public License 2.0 (MPL 2.0)"}
