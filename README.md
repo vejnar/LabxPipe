@@ -24,16 +24,16 @@ See JSON files in `config/pipelines` of this repository.
 | `chip_seq.json`               | ChIP-seq using [Bowtie2](https://github.com/BenLangmead/bowtie2) and [Samtools](http://www.htslib.org) to uniquify reads. |
 
 Following demonstrates how to apply `mrna_seq.json` pipeline. It requires:
-    * [LabxDB](https://labxdb.vejnar.org)
-    * FASTQ file for sample named `AGR000850` and `AGR000912`
-        ```
-        /plus/data/seq/by_run/AGR000850
-        ├── 23_009_R1.fastq.zst
-        └── 23_009_R2.fastq.zst
-        /plus/data/seq/by_run/AGR000912
-        ├── 65_009_R1.fastq.zst
-        └── 65_009_R2.fastq.zst
-        ```
+* [LabxDB](https://labxdb.vejnar.org)
+* FASTQ files for sample named `AGR000850` and `AGR000912`
+    ```
+    /plus/data/seq/by_run/AGR000850
+    ├── 23_009_R1.fastq.zst
+    └── 23_009_R2.fastq.zst
+    /plus/data/seq/by_run/AGR000912
+    ├── 65_009_R1.fastq.zst
+    └── 65_009_R2.fastq.zst
+    ```
 
 Note: `mrna_seq_no_db.json` demonstrates how to use LabxPipe *without* LabxDB: it only requires FASTQ files (in `path_seq_run` directory, see above).
 
