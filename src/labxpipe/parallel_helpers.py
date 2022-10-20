@@ -10,17 +10,7 @@
 
 """Helper functions for parallel processing of runs."""
 
-import json
 import os
-
-def read_merging_schema(path):
-    schema = json.load(open(path, 'rt'))
-    if 'merging' in schema:
-        if isinstance(schema['merging'], dict):
-            return [{'name':k, 'refs':v} for k, v in schema['merging'].items()]
-        else:
-            return schema['merging']
-    return schema
 
 def format2ext(pff):
     pff_split = pff.split('+')

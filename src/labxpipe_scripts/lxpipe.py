@@ -14,6 +14,7 @@ import sys
 
 import labxpipe_scripts.lxpipe_generate
 import labxpipe_scripts.lxpipe_merge_count
+import labxpipe_scripts.lxpipe_profile
 import labxpipe_scripts.lxpipe_run
 import labxpipe_scripts.lxpipe_report
 import labxpipe_scripts.lxpipe_trackhub
@@ -23,6 +24,7 @@ subcommands = {
     'report': labxpipe_scripts.lxpipe_report,
     'merge-count': labxpipe_scripts.lxpipe_merge_count,
     'generate': labxpipe_scripts.lxpipe_generate,
+    'profile': labxpipe_scripts.lxpipe_profile,
     'trackhub': labxpipe_scripts.lxpipe_trackhub
 }
 
