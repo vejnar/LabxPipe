@@ -19,6 +19,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+import zstandard as zstd
 
 import labxdb
 
@@ -226,7 +227,10 @@ def main(argv=None):
         elif os.path.exists(path_annot):
             legacy_fon2 = False
             logger.info(f'Opening {path_annot}')
-            annots = json.load(open(path_annot))
+            if path_annot.endswith('.zst'):
+                annots = json.load(zstd.open(path_annot, 'rt'))
+            else:
+                annots = json.load(open(path_annot, 'rt'))
         else:
             logger.info(f'{path_annot} not found')
             annots = None
