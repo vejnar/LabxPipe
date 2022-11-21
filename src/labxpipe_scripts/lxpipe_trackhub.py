@@ -141,7 +141,7 @@ def make_config(projects=[], samples=[], replicates=[], runs=[], levels=['sample
 def convert_bedgraph(path_bedgraph, path_genome, path_bigwig):
     subprocess.run(['wigToBigWig', path_bedgraph, path_genome, path_bigwig], check=True)
 
-def make_bigwig(trackhub_config, path_root_bams, bam_folder, bam_names, input_sam, ignore_nh_tag, path_genome, path_features, path_mapping=None, strands=['combined', 'plus', 'minus'], profile_type='all-slice', profile_norm=False, profile_multi=None, profile_untemplated=None, profile_no_untemplated=None, profile_extension_length=None, profile_position_fraction=None, read_min_mapping_quality=None, read_in_proper_pair=None, fragment_min_length=None, fragment_max_length=None, path_root_output='.', delete_bedgraph=False, export_binary=False, update=False, num_processor=1, verbose=False, logger=None):
+def make_bigwig(trackhub_config, path_root_bams, bam_folder, bam_names, input_sam, ignore_nh_tag, path_genome, path_features, path_mapping=None, strands=['combined', 'plus', 'minus'], profile_type='all-slice', profile_norm=False, profile_multi=None, profile_untemplated=None, profile_no_untemplated=None, profile_extension_length=None, profile_position_fraction=None, read_min_mapping_quality=None, read_in_proper_pair=None, fragment_min_length=None, fragment_max_length=None, path_root_output='.', delete_bedgraph=False, no_count=False, export_binary=False, update=False, num_processor=1, verbose=False, logger=None):
     # Prepare jobs
     jobs = []
     for bam_fname in bam_names:
@@ -176,6 +176,8 @@ def make_bigwig(trackhub_config, path_root_bams, bam_folder, bam_names, input_sa
                     count_options['feature_strand'] = '-1'
             if ignore_nh_tag:
                 count_options['ignore_nh_tag'] = True
+            if no_count:
+                count_options['count_path'] = ''
             if export_binary:
                 count_options['profile_formats'].append('binary+lz4')
 
@@ -243,6 +245,7 @@ def main(argv=None):
     group.add_argument('-u', '--species_ucsc', dest='species_ucsc', action='store', help='UCSC species name')
     group.add_argument('-m', '--levels', dest='levels', action='store', default='sample,replicate', help='Level to include (comma separated in sample, replicate)')
     group.add_argument('-d', '--delete_bedgraph', dest='delete_bedgraph', action='store_true', help='Delete bedgraph')
+    group.add_argument('--no_count', dest='no_count', action='store_true', help='Don\'t generate count output')
     group.add_argument('-w', '--update', dest='update', action='store_true', help='Update')
     group.add_argument('-p', '--processor', dest='num_processor', action='store', type=int, default=1, help='Number of processor')
     group.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Verbose')
@@ -345,7 +348,7 @@ def main(argv=None):
         else:
             path_features = config['path_genome']
         # Making track data
-        make_bigwig(trackhub_config, config['path_root_bams'], config['bam_folder'], config['bam_names'], config['input_sam'], config['ignore_nh_tag'], config['path_genome'], path_features, path_mapping=config['path_mapping'], strands=config['strands'], profile_type=config['profile_type'], profile_norm=config['profile_norm'], profile_multi=config.get('profile_multi'), profile_untemplated=config.get('profile_untemplated'), profile_no_untemplated=config.get('profile_no_untemplated'), profile_extension_length=config.get('profile_extension_length'), profile_position_fraction=config.get('profile_position_fraction'), read_min_mapping_quality=config.get('read_min_mapping_quality'), read_in_proper_pair=config['read_in_proper_pair'], fragment_min_length=config.get('fragment_min_length'), fragment_max_length=config.get('fragment_max_length'), path_root_output=config['species_ucsc'], export_binary=config['export_binary'], delete_bedgraph=config['delete_bedgraph'], update=config['update'], num_processor=config['num_processor'], verbose=config['verbose'], logger=logger)
+        make_bigwig(trackhub_config, config['path_root_bams'], config['bam_folder'], config['bam_names'], config['input_sam'], config['ignore_nh_tag'], config['path_genome'], path_features, path_mapping=config['path_mapping'], strands=config['strands'], profile_type=config['profile_type'], profile_norm=config['profile_norm'], profile_multi=config.get('profile_multi'), profile_untemplated=config.get('profile_untemplated'), profile_no_untemplated=config.get('profile_no_untemplated'), profile_extension_length=config.get('profile_extension_length'), profile_position_fraction=config.get('profile_position_fraction'), read_min_mapping_quality=config.get('read_min_mapping_quality'), read_in_proper_pair=config['read_in_proper_pair'], fragment_min_length=config.get('fragment_min_length'), fragment_max_length=config.get('fragment_max_length'), path_root_output=config['species_ucsc'], export_binary=config['export_binary'], delete_bedgraph=config['delete_bedgraph'], no_count=config['no_count'], update=config['update'], num_processor=config['num_processor'], verbose=config['verbose'], logger=logger)
 
 if __name__ == '__main__':
     sys.exit(main())
