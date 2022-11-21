@@ -274,6 +274,8 @@ def main(argv=None):
                 first_sample = False
 
             # Merge count
+            count_labels = []
+            count_sums = []
             for merge in merges:
                 series = []
                 for ref in merge['refs']:
@@ -284,9 +286,11 @@ def main(argv=None):
                     else:
                         logger.warning(f'Format of {sample_ref} incorrect')
                         continue
-                main[merge['label_short']] = np.sum(series, axis=0)
+                count_labels.append(merge['label_short'])
+                count_sums.append(np.sum(series, axis=0))
 
             # Export
+            main = pd.concat([main, pd.DataFrame(np.vstack(count_sums).T, columns=count_labels)], axis=1)
             main.to_csv(f"{run_name}_{main_column}_{feature_name}{config['suffix']}.csv", index=False)
 
             # Normalization
@@ -315,15 +319,18 @@ def main(argv=None):
 
                 totals_data = []
                 for sel_name, sel_suffix, sel in sels:
-                    # Copy names, length etc
-                    rpkm = main.iloc[:, :first_datacol_idx].copy()
-
+                    rpkm_labels = []
+                    rpkms = []
                     for col in main.columns[first_datacol_idx:]:
                         total = main.loc[sel, col].sum()
-                        rpkm.loc[:, col] = (main.loc[:, col]) * (1000./main.loc[:, feature_name_type+'_length']) * (1000000./total)
+                        rpkm = (main.loc[:, col]) * (1000./main.loc[:, feature_name_type+'_length']) * (1000000./total)
+                        rpkms.append(rpkm)
+                        rpkm_labels.append(col)
                         totals_data.append([col, sel_name, total])
 
                     # Save dataframe
+                    head = main.iloc[:, :first_datacol_idx].copy()
+                    rpkm = pd.concat([head, pd.DataFrame(np.vstack(rpkms).T, columns=rpkm_labels)], axis=1)
                     rpkm.to_csv(f"{run_name}_rpkm_{main_column[main_column.find('_')+1:]}_{feature_name}{sel_suffix}{config['suffix']}.csv", index=False)
 
                 # Save totals
