@@ -162,6 +162,70 @@ Sample-specific parameters. Automatically populated if using LabxDB or sourced f
 | r1_strand      | string  |
 | quality_scores | string  |
 
+## Demultiplexing sequencing reads: `lxpipe demultiplex`
+
+* Demultiplex reads based on barcode sequences from the `Second barcode` field in [LabxDB](https://labxdb.vejnar.org)
+* Demultiplexing using [ReadKnead](https://sr.ht/~vejnar/ReadKnead). The most important for demultiplexing is the ReadKnead pipeline. Pipelines are identified using the `Adapter 3'` field in LabxDB.
+
+* Example for simple demultiplexing. The first nucleotides at the 5' end of read 1 are used as barcodes (the `Adapter 3'` field is set to `sRNA 1.5` in LabxDB for these samples) with the following pipeline:
+    ```json
+    {
+        "sRNA 1.5": {
+            "R1": [{"name": "demultiplex",
+                    "end": 5,
+                    "max_mismatch": 1}],
+            "R2": null
+        }
+    }
+    ```
+    The barcode sequences are added by LabxPipe using the `Second barcode` field in [LabxDB](https://labxdb.vejnar.org).
+
+* Example for iCLIP demultiplexing. In [Vejnar et al.](https://pubmed.ncbi.nlm.nih.gov/31227602), iCLIP is demultiplexed (the `Adapter 3'` field is set to `TruSeq-DMS+A Index` in LabxDB for these samples) using the following pipeline:
+    ```json
+    {
+        "TruSeq-DMS+A Index": {
+            "R1": [{"name": "clip",
+                    "end": 5,
+                    "length": 4,
+                    "add_clipped": true},
+                {"name": "trim",
+                 "end": 3,
+                 "algo": "bktrim",
+                 "min_sequence": 5,
+                 "keep": ["trim_exact", "trim_align"]},
+                {"name": "length",
+                 "min_length": 6},
+                {"name": "demultiplex",
+                 "end": 3,
+                 "max_mismatch": 1,
+                 "length_ligand": 2},
+                {"name": "length",
+                 "min_length": 15}],
+            "R2": null
+        }
+    }
+    ```
+    Pipeline is stored in `demux_truseq_dms_a.json`. The barcode sequences are added by LabxPipe using the `Second barcode` field in [LabxDB](https://labxdb.vejnar.org). (NB: published demultiplexed data were generated using `"algo": "align"` with a minimum score of 80 instead of `"algo": "bktrim"`)
+
+    Then pipeline was tested running:
+    ```bash
+    lxpipe demultiplex --bulk HHYLKADXX \
+                       --path_demux_ops demux_truseq_dms_a.json \
+                       --path_seq_prepared prepared \
+                       --demux_nozip \
+                       --processor 1 \
+                       --demux_verbose_level 20 \
+                       --no_readonly
+    ```
+    This output is **very verbose**: for every read, output from every step of the demultiplexing pipeline is reported. To get consistent output, `--processor` must be set to `1`. Output is written in local directory `prepared`.
+
+    And finally, once pipeline is validated (data is written in `path_seq_prepared` directory, see [here](https://labxdb.vejnar.org/doc/install/python/#configuration)):
+    ```bash
+    lxpipe demultiplex --bulk HHYLKADXX \
+                       --path_demux_ops demux_truseq_dms_a.json \
+                       --processor 10
+    ```
+
 ## License
 
 *LabxPipe* is distributed under the Mozilla Public License Version 2.0 (see /LICENSE).

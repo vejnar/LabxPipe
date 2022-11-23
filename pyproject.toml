@@ -7,7 +7,7 @@ name = "labxpipe"
 authors = [{name = "Charles E. Vejnar"}]
 description = "Genomics pipelines"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "Mozilla Public License 2.0 (MPL 2.0)"}
 dependencies = [
     "labxdb-tools",

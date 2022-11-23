@@ -12,6 +12,7 @@
 import argparse
 import sys
 
+import labxpipe_scripts.lxpipe_demultiplex
 import labxpipe_scripts.lxpipe_generate
 import labxpipe_scripts.lxpipe_merge_count
 import labxpipe_scripts.lxpipe_profile
@@ -25,7 +26,8 @@ subcommands = {
     'merge-count': labxpipe_scripts.lxpipe_merge_count,
     'generate': labxpipe_scripts.lxpipe_generate,
     'profile': labxpipe_scripts.lxpipe_profile,
-    'trackhub': labxpipe_scripts.lxpipe_trackhub
+    'trackhub': labxpipe_scripts.lxpipe_trackhub,
+    'demultiplex': labxpipe_scripts.lxpipe_demultiplex
 }
 
 def generate_help(subcommands):
