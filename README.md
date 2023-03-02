@@ -230,4 +230,4 @@ Sample-specific parameters. Automatically populated if using LabxDB or sourced f
 
 *LabxPipe* is distributed under the Mozilla Public License Version 2.0 (see /LICENSE).
 
-Copyright (C) 2013-2022 Charles E. Vejnar
+Copyright © 2013-2023 Charles E. Vejnar
