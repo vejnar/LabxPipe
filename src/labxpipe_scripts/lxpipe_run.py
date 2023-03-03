@@ -15,6 +15,7 @@ import argparse
 import concurrent.futures
 import datetime
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -85,7 +86,9 @@ def main(argv=None):
     parser.add_argument('--http_db', '--labxdb_http_db', dest='labxdb_http_db', action='store', help='Database HTTP DB')
     args = parser.parse_args(argv_parser)
 
-    # Logging is not yet available: temporary saving messages
+    # Start logging
+    logger = pfu.log.define_root_logger('main', level='info', log_uncaught=True)
+    # Logging to file isn't yet available: temporary saving messages
     to_log = []
     
     # Load config: Global (JSON single file or all files in path_config)
@@ -102,10 +105,14 @@ def main(argv=None):
         if os.path.isdir(path):
             for f in sorted(os.listdir(path)):
                 if f.endswith('.json'):
-                    to_log.append(f'Load global config ({f})')
+                    msg = f'Load global config ({f})'
+                    logger.info(msg)
+                    to_log.append(msg)
                     config = {**config, **json.load(open(os.path.join(path, f)))}
         elif os.path.isfile(path):
-            to_log.append(f'Load global config ({path})')
+            msg = f'Load global config ({path})'
+            logger.info(msg)
+            to_log.append(msg)
             config = {**config, **json.load(open(path))}
 
     # Input local config from args
@@ -126,7 +133,9 @@ def main(argv=None):
         print('ERROR: Pipeline file not found')
         return 1
     else:
-        to_log.append(f"Load project config ({os.path.abspath(config['path_pipeline'])})")
+        msg = f"Load project config ({os.path.abspath(config['path_pipeline'])})"
+        logger.info(msg)
+        to_log.append(msg)
         config = {**config, **json.load(open(config['path_pipeline']))}
 
     # Start all runs
@@ -153,8 +162,12 @@ def main(argv=None):
                             jobs.append([job_cmd, config['path_pipeline'], config['num_processor'], run_ref, replicate_ref, config.get('labxdb_http_url'), config.get('labxdb_http_login'), config.get('labxdb_http_password'), config.get('labxdb_http_path'), config.get('labxdb_http_db'), failing])
                 # Add jobs to queue
                 fs = []
-                for job in jobs:
-                    fs.append(executor.submit(start_pipeline, *job))
+                if len(jobs) == 0:
+                    logger.info('All done')
+                else:
+                    logger.info(f'Queuing {len(jobs)} job(s)')
+                    for job in jobs:
+                        fs.append(executor.submit(start_pipeline, *job))
                 # Wait
                 try:
                     rfs = concurrent.futures.wait(fs, return_when=concurrent.futures.FIRST_EXCEPTION)
@@ -189,15 +202,19 @@ def main(argv=None):
 
         # Start logging
         logger_name = 'Analysis_' + config['seq_ref']
+        logger.removeHandler(logger.handlers[0])
         logger = pfu.log.define_root_logger(logger_name, level=config['logging_level'], filename=os.path.join(path_log, 'all.log'), log_uncaught=True)
         config['logger_name'] = logger_name
 
-        # Logging buffered log lines
-        logger.info('Starting')
+        # Logging buffered log lines *only* to the FileHandler (StreamHandler temporarily disabled)
+        user_level = logger.handlers[0].level
+        logger.handlers[0].setLevel(logging.ERROR)
         for line in to_log:
             logger.info(line)
+        logger.handlers[0].setLevel(user_level)
 
         # Load available run functions
+        logger.info('Starting')
         run_functions = {}
         for name in labxpipe.steps.__all__:
             step_mod = getattr(labxpipe.steps, name)
@@ -267,6 +284,8 @@ def main(argv=None):
             else:
                 path_input =  os.path.join(config['path_seq_run'], config['run_ref'])
             name_input = 'Input:' + config['seq_ref']
+            path_input_first = path_input
+            name_input_first = name_input
             nstep = len(config['analysis'])
             for iop, op in enumerate(config['analysis']):
                 # Output dir.
@@ -301,11 +320,15 @@ def main(argv=None):
                 if iop < nstep - 1:
                     next_op = config['analysis'][iop+1]
                     if 'step_input' in next_op:
-                        for tmp_op in config['analysis']:
-                            if tmp_op['step_name'] == next_op['step_input']:
-                                path_input = os.path.join(path_analysis, tmp_op['step_name'])
-                                name_input = tmp_op['step_name']
-                                break
+                        if next_op['step_input'] == 'input':
+                            path_input = path_input_first
+                            name_input = name_input_first
+                        else:
+                            for tmp_op in config['analysis']:
+                                if tmp_op['step_name'] == next_op['step_input']:
+                                    path_input = os.path.join(path_analysis, tmp_op['step_name'])
+                                    name_input = tmp_op['step_name']
+                                    break
                     else:
                         path_input = path_output
                         name_input = op['step_name']
