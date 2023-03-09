@@ -139,30 +139,32 @@ def make_config(projects=[], samples=[], replicates=[], runs=[], levels=['sample
     return config, path_trackhub_config
 
 def convert_bedgraph(path_bedgraph, path_genome, path_bigwig):
-    subprocess.run(['wigToBigWig', path_bedgraph, path_genome, path_bigwig], check=True)
+    subprocess.run(['bg2bw', '--input', path_bedgraph, '--chromList', path_genome, '--outfile', path_bigwig], check=True)
 
 def make_bigwig(trackhub_config, path_root_bams, bam_folder, bam_names, input_sam, ignore_nh_tag, path_genome, path_features, path_mapping=None, strands=['combined', 'plus', 'minus'], profile_type='all-slice', profile_norm=False, profile_multi=None, profile_untemplated=None, profile_no_untemplated=None, profile_extension_length=None, profile_position_fraction=None, read_min_mapping_quality=None, read_in_proper_pair=None, fragment_min_length=None, fragment_max_length=None, path_root_output='.', delete_bedgraph=False, no_count=False, export_binary=False, update=False, num_processor=1, verbose=False, logger=None):
     # Prepare jobs
     jobs = []
     for bam_fname in bam_names:
         for strand in strands:
-            count_options = {'profile_formats': ['bedgraph'],
-                             'profile_norm': profile_norm,
-                             'profile_no_coord_mapping': True,
-                             'profile_type': profile_type,
-                             'profile_multi': profile_multi,
-                             'profile_untemplated': profile_untemplated,
-                             'profile_no_untemplated': profile_no_untemplated,
-                             'profile_extension_length': profile_extension_length,
-                             'profile_position_fraction': profile_position_fraction,
-                             'path_features': path_features,
-                             'format_features': 'tab',
-                             'path_mapping': path_mapping,
-                             'read_min_mapping_quality': read_min_mapping_quality,
-                             'read_in_proper_pair': read_in_proper_pair,
-                             'fragment_min_length': fragment_min_length,
-                             'fragment_max_length': fragment_max_length,
-                             'verbose': verbose}
+            count_options = {
+                'profile_formats': ['bedgraph'],
+                'profile_norm': profile_norm,
+                'profile_no_coord_mapping': True,
+                'profile_type': profile_type,
+                'profile_multi': profile_multi,
+                'profile_untemplated': profile_untemplated,
+                'profile_no_untemplated': profile_no_untemplated,
+                'profile_extension_length': profile_extension_length,
+                'profile_position_fraction': profile_position_fraction,
+                'path_features': path_features,
+                'format_features': 'tab',
+                'path_mapping': path_mapping,
+                'read_min_mapping_quality': read_min_mapping_quality,
+                'read_in_proper_pair': read_in_proper_pair,
+                'fragment_min_length': fragment_min_length,
+                'fragment_max_length': fragment_max_length,
+                'verbose': verbose,
+            }
             merging_schema = copy.deepcopy(trackhub_config['merging'])
             label_suffix = ''
             if strand == 'combined':
