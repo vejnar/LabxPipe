@@ -34,6 +34,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog=prog, description='Generate pipeline config.')
     parser.add_argument('-p', '--project', dest='project', action='store', help='Project')
     parser.add_argument('-r', '--replicate', dest='replicate', action='store_true', help='List replicates instead of runs')
+    parser.add_argument('-n', '--infos', dest='infos', action='store_true', help='Include sample infos from database')
+    parser.add_argument('-o', '--path_output', dest='path_output', action='store', default='-', help='Path to output (\'-\' for stdout)')
     parser.add_argument('--path_config', dest='path_config', action='store', help='Path to config')
     parser.add_argument('--http_url', '--labxdb_http_url', dest='labxdb_http_url', action='store', help='Database HTTP URL')
     parser.add_argument('--http_login', '--labxdb_http_login', dest='labxdb_http_login', action='store', help='Database HTTP login')
@@ -78,6 +80,7 @@ def main(argv=None):
     if 'project' in config:
         # Empty project
         empty_project = {'name': '', 'path_output': '', 'logging_level': 'info'}
+
         # Add refs
         projects = dbl.post('tree', {'search_criterion':['0 project_ref EQUAL '+config['project']], 'search_gate':'AND', 'limit':'ALL'})
         if args.replicate:
@@ -86,10 +89,73 @@ def main(argv=None):
         else:
             refs = sorted([run['run_ref'] for project in projects for sample in project['children'] for replicate in sample['children'] for run in replicate['children']])
             empty_project['run_refs'] = refs
+
+        # Add sample infos
+        if args.infos:
+            empty_project['ref_info_source'] = ['json']
+
+            # Prepare sample infos
+            ref_infos = []
+            for project in projects:
+                for sample in project['children']:
+                    # Get adapter sequence
+                    if sample['adapter_5p'] is not None and sample['adapter_5p'] in config['adaptors']:
+                        adaptor_5p = config['adaptors'][sample['adapter_5p']]
+                    else:
+                        adaptor_5p = None
+                    if sample['adapter_3p'] is not None and sample['adapter_3p'] in config['adaptors']:
+                        adaptor_3p = config['adaptors'][sample['adapter_3p']]
+                    else:
+                        adaptor_3p = None
+                    for replicate in sample['children']:
+                        for run in replicate['children']:
+                            paired = run['paired']
+                            directional = run['directional']
+                            r1_strand = run['r1_strand']
+                            quality_scores = run['quality_scores']
+                            if 'run_refs' in empty_project and run['run_ref'] in empty_project['run_refs']:
+                                d = {
+                                    'label_short': replicate['label_short'],
+                                    'label_long': replicate['label_long'],
+                                    'paired': paired,
+                                    'directional': directional,
+                                    'r1_strand': r1_strand,
+                                    'quality_scores': quality_scores,
+                                }
+                                if adaptor_5p is not None:
+                                    d['adaptor_5p'] = adaptor_5p
+                                if adaptor_3p is not None:
+                                    d['adaptor_3p'] = adaptor_3p
+                                ref_infos.append((run['run_ref'], d))
+                        if 'replicate_refs' in empty_project and run['replicate_ref'] in empty_project['replicate_refs']:
+                            d = {
+                                'label_short': replicate['label_short'],
+                                'label_long': replicate['label_long'],
+                                'paired': paired,
+                                'directional': directional,
+                                'r1_strand': r1_strand,
+                                'quality_scores': quality_scores,
+                            }
+                            if adaptor_5p is not None:
+                                d['adaptor_5p'] = adaptor_5p
+                            if adaptor_3p is not None:
+                                d['adaptor_3p'] = adaptor_3p
+                            ref_infos.append((replicate['replicate_ref'], d))
+
+            # Add sample infos to project
+            ref_infos.sort(key=lambda x: x[0])
+            empty_project['ref_infos'] = dict(ref_infos)
+
         # Add analysis
         empty_project['analysis'] = []
-        # Print
-        print(json.dumps(empty_project, indent=4, separators=(',', ': ')))
+
+        # Output
+        out = json.dumps(empty_project, indent=4, separators=(',', ': '))
+        if args.path_output == '-':
+            print(out)
+        else:
+            with open(args.path_output, 'wt') as f:
+                f.write(out)
 
 if __name__ == '__main__':
     sys.exit(main())
