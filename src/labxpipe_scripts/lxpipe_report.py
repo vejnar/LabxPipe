@@ -239,7 +239,7 @@ def main(argv=None):
         argv = sys.argv
     # Started from wrapper?
     prog = os.path.basename(argv[0])
-    if argv[1] == 'report':
+    if len(argv) > 1 and argv[1] == 'report':
         job_cmd = argv[:2]
         argv_parser = argv[2:]
         prog += ' report'
