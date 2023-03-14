@@ -26,6 +26,8 @@ import labxdb
 import pyfnutils as pfu
 import pyfnutils.log
 
+from labxpipe import utils
+
 def read_data(path_data, step_name, name_column):
     if step_name == 'counting':
         m = pd.read_csv(path_data+'.csv')
@@ -40,12 +42,6 @@ def is_spike_in(prefix, name):
         return True
     else:
         return False
-
-def label2var(label):
-    if label is None:
-        return None
-    else:
-        return label.replace(' ', '_').replace('-', '_').replace('%', 'p').replace('/', '_')
 
 def main(argv=None):
     if argv is None:
@@ -193,7 +189,7 @@ def main(argv=None):
                             logger.warning(f'Duplicate label: {label_short}')
                             label_short += ' dup'
                         if config['strict_column_names']:
-                            label_short = label2var(label_short)
+                            label_short = utils.label2var(label_short)
                         merges.append({'refs':merge_replicate_refs, 'label_short':label_short, 'level':'replicate'})
                         merges_labels.add(label_short)
                     merge_sample_refs.extend(merge_replicate_refs)
@@ -203,7 +199,7 @@ def main(argv=None):
                         logger.warning(f'Duplicate label: {label_short}')
                         label_short += ' dup'
                     if config['strict_column_names']:
-                        label_short = label2var(label_short)
+                        label_short = utils.label2var(label_short)
                     merges.append({'refs':merge_sample_refs, 'label_short':label_short, 'level':'sample'})
                     merges_labels.add(label_short)
         logger.info('Merging')

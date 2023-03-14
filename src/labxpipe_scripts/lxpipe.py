@@ -13,6 +13,7 @@ import argparse
 import sys
 
 import labxpipe_scripts.lxpipe_demultiplex
+import labxpipe_scripts.lxpipe_extract
 import labxpipe_scripts.lxpipe_generate
 import labxpipe_scripts.lxpipe_merge_count
 import labxpipe_scripts.lxpipe_profile
@@ -23,6 +24,7 @@ import labxpipe_scripts.lxpipe_trackhub
 subcommands = {
     'run': labxpipe_scripts.lxpipe_run,
     'report': labxpipe_scripts.lxpipe_report,
+    'extract': labxpipe_scripts.lxpipe_extract,
     'merge-count': labxpipe_scripts.lxpipe_merge_count,
     'generate': labxpipe_scripts.lxpipe_generate,
     'profile': labxpipe_scripts.lxpipe_profile,

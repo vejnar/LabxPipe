@@ -12,6 +12,8 @@ import json
 import os
 import re
 
+all_exts = ['.bam', '.bedgraph', '.bin', '.bw', '.csv', '.fastq', '.json', '.log', '.pdf', '.sam', '.tab', '.txt']
+
 def parse_fastq_filename(fname, regex=r'.+_([R,I][1,2,3])\.f'):
     m = re.match(regex, fname)
     if m:
@@ -39,3 +41,9 @@ def get_fastqs_per_end(path_seq, paired=False, fastq_exts=None, read_regexs=None
 
 def write_report(fname, report):
     json.dump(report, open(fname+'.json', 'w'), sort_keys=True, indent=4, separators=(',', ': '))
+
+def label2var(label):
+    if label is None:
+        return None
+    else:
+        return label.replace(' ', '_').replace('-', '_').replace('%', 'p').replace('/', '_')
