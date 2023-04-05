@@ -17,9 +17,7 @@ import os
 import sys
 
 import labxdb
-
-from labxpipe import utils
-
+import labxpipe.utils
 
 def main(argv=None):
     if argv is None:
@@ -124,12 +122,12 @@ def main(argv=None):
 
     # Create move list
     moves = []
-    for ref in config.get('run_refs', 'replicate_refs'):
+    for ref in labxpipe.utils.get_first_key(('run_refs', 'replicate_refs'), config):
         for step, fname in files:
             path_in = os.path.join(config['path_output'], ref, step, fname)
             if os.path.exists(path_in):
                 fname_ext = None
-                for ext in utils.all_exts + config['search_extensions']:
+                for ext in labxpipe.utils.all_exts + config['search_extensions']:
                     if fname.rfind(ext) != -1:
                         fname_ext = fname[fname.rfind(ext) :]
                         break
@@ -138,7 +136,7 @@ def main(argv=None):
                 if fname_ext is None:
                     fname_ext = fname
                 if args.use_label:
-                    label = utils.label2var(config['ref_infos'][ref]['label_short'])
+                    label = labxpipe.utils.label2var(config['ref_infos'][ref]['label_short'])
                 if args.use_label and args.use_reference:
                     name = f'{label}_{ref}'
                 elif args.use_label:

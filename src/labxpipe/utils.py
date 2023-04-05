@@ -47,3 +47,8 @@ def label2var(label):
         return None
     else:
         return label.replace(' ', '_').replace('-', '_').replace('%', 'p').replace('/', '_')
+
+def get_first_key(l, d):
+    for k in l:
+        if k in d:
+            return d[k]

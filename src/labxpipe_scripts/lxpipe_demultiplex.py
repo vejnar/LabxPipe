@@ -27,6 +27,7 @@ import pyfnutils as pfu
 import pyfnutils.log
 
 import labxpipe.interfaces.if_exe_readknead
+import labxpipe.utils
 
 class Error(Exception):
     def __init__(self, message):
@@ -188,11 +189,6 @@ def check_exe(names):
         if shutil.which(name) == None:
             raise Error(f'{name} missing')
 
-def get_first_key(l, d):
-    for k in l:
-        if k in d:
-            return d[k]
-
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -285,7 +281,7 @@ def main(argv=None):
 
     # Init. demultiplex
     if not config['dry_run']:
-        path_demultiplex = os.path.join(get_first_key(['path_seq_tmp', 'path_seq_prepared'], config), config['bulk'])
+        path_demultiplex = os.path.join(labxpipe.utils.get_first_key(['path_seq_tmp', 'path_seq_prepared'], config), config['bulk'])
         if not os.path.exists(path_demultiplex):
             os.mkdir(path_demultiplex)
         log_filename = os.path.join(path_demultiplex, 'demultiplex.log')
