@@ -16,8 +16,8 @@ from ..interfaces import if_exe_star
 from ..utils import get_fastqs_per_end
 from ..utils import write_report
 
-functions = ['aligning',
-             'star']
+functions = ['aligning', 'star']
+
 
 def run(path_in, path_out, params):
     # Parameters
@@ -53,23 +53,25 @@ def run(path_in, path_out, params):
         fq_files.append(None)
 
     # Align
-    stdout, stderr = if_exe_star.star(fq_files[0],
-                                      fq_files[1],
-                                      quality_score           = params['quality_scores'],
-                                      outpath                 = path_out + '/',
-                                      reads_directional       = params['directional'],
-                                      star_index              = os.path.join(params['path_star_index'], params['index']),
-                                      num_processor           = str(params['num_processor']),
-                                      output_type             = params.get('output_type'),
-                                      rename                  = params.get('rename', True),
-                                      compress_sam            = params.get('compress_sam', False),
-                                      compress_unmapped       = params.get('compress_unmapped', True),
-                                      compress_sam_cmd        = params.get('compress_sam_cmd'),
-                                      compress_unmapped_cmd   = params.get('compress_unmapped_cmd'),
-                                      others                  = others,
-                                      exe                     = star_exe,
-                                      return_std              = True,
-                                      logger                  = logger)
+    stdout, stderr = if_exe_star.star(
+        fq_files[0],
+        fq_files[1],
+        quality_score=params['quality_scores'],
+        outpath=path_out + '/',
+        reads_directional=params['directional'],
+        star_index=os.path.join(params['path_star_index'], params['index']),
+        num_processor=str(params['num_processor']),
+        output_type=params.get('output_type'),
+        rename=params.get('rename', True),
+        compress_sam=params.get('compress_sam', False),
+        compress_unmapped=params.get('compress_unmapped', True),
+        compress_sam_cmd=params.get('compress_sam_cmd'),
+        compress_unmapped_cmd=params.get('compress_unmapped_cmd'),
+        others=others,
+        exe=star_exe,
+        return_std=True,
+        logger=logger,
+    )
     # Write output
     with open(os.path.join(path_out, 'star_err.log'), 'wt') as f:
         f.write(stderr)
@@ -79,12 +81,17 @@ def run(path_in, path_out, params):
     report = if_exe_star.parse_star_report(os.path.join(path_out, 'Log.final.out'))
 
     # Index BAM file(s)
-    sorted_bam = 'output_type' in params and 'None' not in params['output_type'] and 'Unsorted' not in params['output_type'] and 'SAM' not in params['output_type']
+    sorted_bam = (
+        'output_type' in params
+        and 'None' not in params['output_type']
+        and 'Unsorted' not in params['output_type']
+        and 'SAM' not in params['output_type']
+    )
     if sorted_bam:
-        if_exe_samtools.create_bam_index(os.path.join(path_out, 'accepted_hits.bam'), logger = logger)
+        if_exe_samtools.create_bam_index(os.path.join(path_out, 'accepted_hits.bam'), logger=logger)
     if os.path.exists(os.path.join(path_out, 'accepted_hits_sorted.bam')):
-        if_exe_samtools.create_bam_index(os.path.join(path_out, 'accepted_hits_sorted.bam'), logger = logger)
+        if_exe_samtools.create_bam_index(os.path.join(path_out, 'accepted_hits_sorted.bam'), logger=logger)
 
     # Report
     logger.info('Report')
-    write_report(os.path.join(path_out, params['step_name']+'_report'), report)
+    write_report(os.path.join(path_out, params['step_name'] + '_report'), report)

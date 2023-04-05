@@ -16,19 +16,22 @@ from ..interfaces import if_exe_samtools
 from ..utils import get_fastqs_per_end
 from ..utils import write_report
 
-functions = ['genomic_aligning',
-             'bowtie2']
+functions = ['genomic_aligning', 'bowtie2']
+
 
 def get_max_ram(num_processor):
     # Assume 8GB per core
     return int((8 * 1024 * 1024 * 1024) / (num_processor * 0.2))
+
 
 def run(path_in, path_out, params):
     # Parameters
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
 
     # Check compress_sam and index_bam aren't used together
-    assert not (params.get('compress_sam', False) and params.get('index_bam', False)), 'Options compress_sam and index_bam incompatible'
+    assert not (
+        params.get('compress_sam', False) and params.get('index_bam', False)
+    ), 'Options compress_sam and index_bam incompatible'
 
     # Input
     fq_files = get_fastqs_per_end(path_in, params.get('paired'), params.get('fastq_exts'), params.get('read_regexs_in'))
@@ -70,26 +73,36 @@ def run(path_in, path_out, params):
     logger.info(f'Using Bowtie2 {if_exe_bowtie2.get_bowtie2_version(bowtie2_exe)}')
 
     # Align
-    stdout, stderr = if_exe_bowtie2.bowtie2(fq_files[0],
-                                            fq_files[1],
-                                            quality_score         = params.get('quality_scores'),
-                                            outfile               = os.path.join(path_out, params['output']),
-                                            bwt_index             = os.path.join(params['path_bowtie2_index'], params['index']),
-                                            num_processor         = str(params['num_processor']),
-                                            compress_sam          = params.get('compress_sam', False),
-                                            compress_sam_cmd      = params.get('compress_sam_cmd'),
-                                            others                = others,
-                                            exe                   = bowtie2_exe,
-                                            return_std            = True,
-                                            cwd                   = path_out,
-                                            logger                = logger)
+    stdout, stderr = if_exe_bowtie2.bowtie2(
+        fq_files[0],
+        fq_files[1],
+        quality_score=params.get('quality_scores'),
+        outfile=os.path.join(path_out, params['output']),
+        bwt_index=os.path.join(params['path_bowtie2_index'], params['index']),
+        num_processor=str(params['num_processor']),
+        compress_sam=params.get('compress_sam', False),
+        compress_sam_cmd=params.get('compress_sam_cmd'),
+        others=others,
+        exe=bowtie2_exe,
+        return_std=True,
+        cwd=path_out,
+        logger=logger,
+    )
 
     # Create and index BAM file
     if params.get('create_bam', False):
         if_exe_samtools.create_bam(os.path.join(path_out, params['output']), exe=bowtie2_exe, logger=logger)
     elif params.get('index_bam', False):
-        if_exe_samtools.create_bam(os.path.join(path_out, params['output']), sort=True, max_memory=get_max_ram(params['num_processor']), exe=bowtie2_exe, logger=logger)
-        if_exe_samtools.create_bam_index(os.path.join(path_out, params['output'].replace('.sam', '.bam')), exe=bowtie2_exe, logger=logger)
+        if_exe_samtools.create_bam(
+            os.path.join(path_out, params['output']),
+            sort=True,
+            max_memory=get_max_ram(params['num_processor']),
+            exe=bowtie2_exe,
+            logger=logger,
+        )
+        if_exe_samtools.create_bam_index(
+            os.path.join(path_out, params['output'].replace('.sam', '.bam')), exe=bowtie2_exe, logger=logger
+        )
 
     # Report
     logger.info('Report: Writing logs')
@@ -99,4 +112,4 @@ def run(path_in, path_out, params):
         f.write(stdout)
     logger.info('Report: Writing stats')
     report = if_exe_bowtie2.get_bowtie2_report(os.path.join(path_out, 'bowtie2_err.log'))
-    write_report(os.path.join(path_out, params['step_name']+'_report'), report)
+    write_report(os.path.join(path_out, params['step_name'] + '_report'), report)

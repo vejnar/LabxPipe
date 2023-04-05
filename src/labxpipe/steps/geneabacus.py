@@ -26,7 +26,9 @@ def run(path_in, path_out, params):
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
 
     # Reference features first
-    features = [f for f in params['features'] if 'count_reference' not in f] + [f for f in params['features'] if 'count_reference' in f]
+    features = [f for f in params['features'] if 'count_reference' not in f] + [
+        f for f in params['features'] if 'count_reference' in f
+    ]
 
     # Input
     if 'inputs' in params:
@@ -89,7 +91,10 @@ def run(path_in, path_out, params):
             # Profiles
             if 'profile_formats' in feature:
                 profile_formats = feature['profile_formats']
-                profile_paths = [os.path.join(path_out, feature['name'] + output_suffix + parallel_helpers.format2ext(pf)) for pf in feature['profile_formats']]
+                profile_paths = [
+                    os.path.join(path_out, feature['name'] + output_suffix + parallel_helpers.format2ext(pf))
+                    for pf in feature['profile_formats']
+                ]
             else:
                 profile_formats = None
                 profile_paths = None
@@ -102,30 +107,30 @@ def run(path_in, path_out, params):
 
             # Count job
             job = {
-                'path_features'            : path_features,
-                'format_features'          : format_features,
-                'fon_name'                 : feature.get('fon_name'),
-                'fon_chrom'                : feature.get('fon_chrom'),
-                'fon_coords'               : feature.get('fon_coords'),
-                'fon_strand'               : feature.get('fon_strand'),
-                'path_report'              : os.path.join(path_out, feature['name'] + output_suffix + '_report.json'),
-                'read_strand'              : params.get('r1_strand'),
-                'paired'                   : params.get('paired'),
-                'ignore_nh_tag'            : params.get('ignore_nh_tag'),
-                'read_min_overlap'         : feature.get('read_min_overlap'),
-                'count_path'               : os.path.join(path_out, feature['name'] + output_suffix + '.csv'),
-                'count_multis'             : count_multis,
-                'count_totals'             : count_totals,
-                'profile_formats'          : profile_formats,
-                'profile_paths'            : profile_paths,
-                'profile_type'             : feature.get('profile_type'),
-                'profile_multi'            : feature.get('profile_multi'),
-                'profile_no_coord_mapping' : feature.get('profile_no_coord_mapping'),
-                'path_sam_out'             : path_sam_out,
-                'num_worker'               : str(min(params['num_processor'], 3)),
-                'others'                   : params.get('options', []) + feature.get('options', []),
-                'exe'                      : geneabacus_exe,
-                'logger'                   : logger,
+                'path_features': path_features,
+                'format_features': format_features,
+                'fon_name': feature.get('fon_name'),
+                'fon_chrom': feature.get('fon_chrom'),
+                'fon_coords': feature.get('fon_coords'),
+                'fon_strand': feature.get('fon_strand'),
+                'path_report': os.path.join(path_out, feature['name'] + output_suffix + '_report.json'),
+                'read_strand': params.get('r1_strand'),
+                'paired': params.get('paired'),
+                'ignore_nh_tag': params.get('ignore_nh_tag'),
+                'read_min_overlap': feature.get('read_min_overlap'),
+                'count_path': os.path.join(path_out, feature['name'] + output_suffix + '.csv'),
+                'count_multis': count_multis,
+                'count_totals': count_totals,
+                'profile_formats': profile_formats,
+                'profile_paths': profile_paths,
+                'profile_type': feature.get('profile_type'),
+                'profile_multi': feature.get('profile_multi'),
+                'profile_no_coord_mapping': feature.get('profile_no_coord_mapping'),
+                'path_sam_out': path_sam_out,
+                'num_worker': str(min(params['num_processor'], 3)),
+                'others': params.get('options', []) + feature.get('options', []),
+                'exe': geneabacus_exe,
+                'logger': logger,
             }
             if input_type == 'bam':
                 job['path_bam'] = path_input

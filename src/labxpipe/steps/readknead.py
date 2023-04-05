@@ -14,8 +14,8 @@ import os
 from ..interfaces import if_exe_readknead
 from ..utils import get_fastqs_per_end
 
-functions = ['preparing',
-             'readknead']
+functions = ['preparing', 'readknead']
+
 
 def get_idx_step(step, ops):
     idx = 0
@@ -24,6 +24,7 @@ def get_idx_step(step, ops):
             return idx
         idx += 1
     return None
+
 
 def run(path_in, path_out, params):
     # Parameters
@@ -38,7 +39,12 @@ def run(path_in, path_out, params):
                 params[oread][idx_rename]['new_name'] = params['seq_ref'] + '.'
             # Add adaptor sequence
             idx_trim = get_idx_step('trim', params[oread])
-            if idx_trim is not None and 'sequence' not in params[oread][idx_trim] and 'sequences' not in params[oread][idx_trim] and adaptor in params:
+            if (
+                idx_trim is not None
+                and 'sequence' not in params[oread][idx_trim]
+                and 'sequences' not in params[oread][idx_trim]
+                and adaptor in params
+            ):
                 params[oread][idx_trim]['sequence'] = params[adaptor]
 
     # Executable
@@ -122,26 +128,28 @@ def run(path_in, path_out, params):
         stats_out_path = None
 
     # Run
-    stdout, stderr = if_exe_readknead.readknead(fq_files[0],
-                                                fq_files[1],
-                                                fq_path_out,
-                                                fq_fname_out_r1      = fq_fname_out_r1,
-                                                fq_fname_out_r2      = fq_fname_out_r2,
-                                                fq_command_in        = fq_command_in,
-                                                fq_command_out       = fq_command_out,
-                                                quality_score        = params['quality_scores'],
-                                                ops_r1               = params.get('ops_r1'),
-                                                ops_r2               = params.get('ops_r2'),
-                                                report_path          = os.path.join(path_out, params['step_name']+'_report.json'),
-                                                label                = params['label_short'],
-                                                stats_in_path        = stats_in_path,
-                                                stats_out_path       = stats_out_path,
-                                                max_read_length      = params.get('max_read_length'),
-                                                others               = params.get('options'),
-                                                exe                  = readknead_exe,
-                                                num_worker           = str(params['num_processor']),
-                                                return_std           = True,
-                                                logger               = logger)
+    stdout, stderr = if_exe_readknead.readknead(
+        fq_files[0],
+        fq_files[1],
+        fq_path_out,
+        fq_fname_out_r1=fq_fname_out_r1,
+        fq_fname_out_r2=fq_fname_out_r2,
+        fq_command_in=fq_command_in,
+        fq_command_out=fq_command_out,
+        quality_score=params['quality_scores'],
+        ops_r1=params.get('ops_r1'),
+        ops_r2=params.get('ops_r2'),
+        report_path=os.path.join(path_out, params['step_name'] + '_report.json'),
+        label=params['label_short'],
+        stats_in_path=stats_in_path,
+        stats_out_path=stats_out_path,
+        max_read_length=params.get('max_read_length'),
+        others=params.get('options'),
+        exe=readknead_exe,
+        num_worker=str(params['num_processor']),
+        return_std=True,
+        logger=logger,
+    )
 
     # Write output
     with open(os.path.join(path_out, 'readknead_err.log'), 'w') as f:

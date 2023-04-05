@@ -15,6 +15,7 @@ from ..interfaces import if_exe_cufflinks
 
 functions = ['cufflinks']
 
+
 def run(path_in, path_out, params):
     # Parameters
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
@@ -52,15 +53,17 @@ def run(path_in, path_out, params):
                 raise ValueError('Missing path_gff3')
 
             # Count
-            stdout, stderr = if_exe_cufflinks.cufflinks(path_input,
-                                                        outpath           = path_out,
-                                                        path_features     = path_features,
-                                                        read_strand       = params.get('r1_strand'),
-                                                        num_processor     = str(params['num_processor']),
-                                                        others            = params.get('options'),
-                                                        exe               = cufflinks_exe,
-                                                        return_std        = True,
-                                                        logger            = logger)
+            stdout, stderr = if_exe_cufflinks.cufflinks(
+                path_input,
+                outpath=path_out,
+                path_features=path_features,
+                read_strand=params.get('r1_strand'),
+                num_processor=str(params['num_processor']),
+                others=params.get('options'),
+                exe=cufflinks_exe,
+                return_std=True,
+                logger=logger,
+            )
 
     # Report
     logger.info('Report: Writing logs')

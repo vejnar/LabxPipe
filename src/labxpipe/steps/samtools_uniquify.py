@@ -17,6 +17,7 @@ from ..utils import write_report
 
 functions = ['samtools_uniquify']
 
+
 def run(path_in, path_out, params):
     # Parameters
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
@@ -50,38 +51,50 @@ def run(path_in, path_out, params):
 
     # Prepare paired-end reads (using fixmate)
     if params.get('paired'):
-        cmd = [samtools_exe,
-               'fixmate',
-               '-m',
-               path_input_sam,
-               os.path.join(path_out, 'accepted_hits_fixmate.bam')]
+        cmd = [
+            samtools_exe,
+            'fixmate',
+            '-m',
+            path_input_sam,
+            os.path.join(path_out, 'accepted_hits_fixmate.bam'),
+        ]
         logger.info('Starting samtools (fixing mate) with ' + str(cmd))
         subprocess.run(cmd, check=True)
-        cmd = [samtools_exe,
-               'sort',
-               '-o', os.path.join(path_out, 'accepted_hits_fixmate_sort.bam'),
-               os.path.join(path_out, 'accepted_hits_fixmate.bam')]
+        cmd = [
+            samtools_exe,
+            'sort',
+            '-o',
+            os.path.join(path_out, 'accepted_hits_fixmate_sort.bam'),
+            os.path.join(path_out, 'accepted_hits_fixmate.bam'),
+        ]
         logger.info('Starting samtools (position sort) with ' + str(cmd))
         subprocess.run(cmd, check=True)
         path_input_sam = os.path.join(path_out, 'accepted_hits_fixmate_sort.bam')
 
     # Start samtools markdup
-    cmd = [samtools_exe,
-           'markdup',
-           '-r']
+    cmd = [
+        samtools_exe,
+        'markdup',
+        '-r',
+    ]
     cmd += others
-    cmd += [path_input_sam,
-            os.path.join(path_out, 'accepted_hits_st.bam')]
+    cmd += [
+        path_input_sam,
+        os.path.join(path_out, 'accepted_hits_st.bam'),
+    ]
     logger.info('Starting samtools with ' + str(cmd))
     subprocess.run(cmd, check=True)
 
     # Re-sort by read name
     if params.get('sort_by_name_bam', False):
-        cmd = [samtools_exe,
-               'sort',
-               '-n',
-               '-o', path_output_sam,
-               os.path.join(path_out, 'accepted_hits_st.bam')]
+        cmd = [
+            samtools_exe,
+            'sort',
+            '-n',
+            '-o',
+            path_output_sam,
+            os.path.join(path_out, 'accepted_hits_st.bam'),
+        ]
         logger.info('Starting samtools (read-name sort) with ' + str(cmd))
         subprocess.run(cmd, check=True)
     else:
@@ -89,22 +102,16 @@ def run(path_in, path_out, params):
 
     # Index BAM file
     if params.get('index_bam', False):
-        if_exe_samtools.create_bam_index(path_output_sam,
-                                         exe = samtools_exe,
-                                         logger = logger)
+        if_exe_samtools.create_bam_index(path_output_sam, exe=samtools_exe, logger=logger)
 
     # Compute report
     logger.info('Report')
     report = {}
     # Input
-    raw_report = if_exe_samtools.sam_stats(path_top_input_sam,
-                                           exe = samtools_exe,
-                                           logger = logger)
+    raw_report = if_exe_samtools.sam_stats(path_top_input_sam, exe=samtools_exe, logger=logger)
     report['input'] = raw_report['reads mapped']
     # Output
-    raw_report = if_exe_samtools.sam_stats(path_output_sam,
-                                           exe = samtools_exe,
-                                           logger = logger)
+    raw_report = if_exe_samtools.sam_stats(path_output_sam, exe=samtools_exe, logger=logger)
     report['output'] = raw_report['reads mapped']
     # Report
-    write_report(os.path.join(path_out, params['step_name']+'_report'), report)
+    write_report(os.path.join(path_out, params['step_name'] + '_report'), report)

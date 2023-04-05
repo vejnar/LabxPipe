@@ -16,6 +16,7 @@ from ..utils import write_report
 
 functions = ['cleaning']
 
+
 def run(path_in, path_out, params):
     # Parameters
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
@@ -42,4 +43,4 @@ def run(path_in, path_out, params):
 
     # Report
     logger.info('Report: Writing stats')
-    write_report(os.path.join(path_out, params['step_name']+'_report'), {'saved_space': saved_space})
+    write_report(os.path.join(path_out, params['step_name'] + '_report'), {'saved_space': saved_space})
