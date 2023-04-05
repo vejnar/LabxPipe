@@ -14,6 +14,7 @@
 import argparse
 import concurrent.futures
 import datetime
+import importlib.util
 import json
 import logging
 import os
@@ -220,6 +221,17 @@ def main(argv=None):
             step_mod = getattr(labxpipe.steps, name)
             for n in getattr(step_mod, 'functions'):
                 run_functions[n] = step_mod.run
+
+        # Load user run functions
+        if 'path_local_steps' in config:
+            for f in os.listdir(config['path_local_steps']):
+                if f.endswith('.py'):
+                    logger.info(f'Loading module {f}')
+                    spec = importlib.util.spec_from_file_location(f[:-3], os.path.join(config['path_local_steps'], f))
+                    step_mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(step_mod)
+                    for n in getattr(step_mod, 'functions'):
+                        run_functions[n] = step_mod.run
 
         # Completion object
         completion_fname = os.path.join(path_log, config['name']+'_compl.json')
