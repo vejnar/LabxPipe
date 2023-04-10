@@ -72,8 +72,8 @@ def demultiplex(bulk, path_demux_ops, path_seq_tmp, path_seq_raw, path_seq_prepa
             # Flowcell
             flowcells = set()
             for p in path_list:
-                r = labxdb.fastq.get_illumina_fastq_info(os.path.join(p['path'], p['fname']))
-                flowcells.add(r['flowcell'])
+                fastq_info = labxdb.fastq.get_fastq_info(os.path.join(p['path'], p['fname']), [labxdb.fastq.get_illumina_fastq_info, labxdb.fastq.get_pacbio_fastq_info])
+                flowcells.add(fastq_info['flowcell'])
             if len(flowcells) == 1:
                 flowcell = list(flowcells)[0]
                 search_criterion.append('3 flowcell FUZZY '+flowcell)
