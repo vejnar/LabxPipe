@@ -28,10 +28,14 @@ def run(path_in, path_out, params):
     # Parameters
     logger = logging.getLogger(params['logger_name'] + '.' + params['step_name'])
 
-    # Check compress_sam and index_bam aren't used together
-    assert not (
-        params.get('compress_sam', False) and params.get('index_bam', False)
-    ), 'Options compress_sam and index_bam incompatible'
+    # Keep output SAM if BAM is requested by user
+    compress_sam_cmd = params.get('compress_sam_cmd')
+    if params.get('compress_sam', False) and compress_sam_cmd is None:
+        if params.get('create_bam', False) or params.get('index_bam', False):
+            compress_sam_cmd = ['zstd', '--keep', '-12']
+        else:
+            compress_sam_cmd = ['zstd', '--rm', '-12']
+        logger.info(f'Output compression using {compress_sam_cmd}')
 
     # Input
     fq_files = get_fastqs_per_end(path_in, params.get('paired'), params.get('fastq_exts'), params.get('read_regexs_in'))
@@ -81,7 +85,7 @@ def run(path_in, path_out, params):
         bwt_index=os.path.join(params['path_bowtie2_index'], params['index']),
         num_processor=str(params['num_processor']),
         compress_sam=params.get('compress_sam', False),
-        compress_sam_cmd=params.get('compress_sam_cmd'),
+        compress_sam_cmd=compress_sam_cmd,
         others=others,
         exe=bowtie2_exe,
         return_std=True,
