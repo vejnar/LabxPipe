@@ -91,17 +91,16 @@ def run(path_in, path_out, params):
 
     # Create and index BAM file
     if params.get('create_bam', False):
-        if_exe_samtools.create_bam(os.path.join(path_out, params['output']), exe=bowtie2_exe, logger=logger)
+        if_exe_samtools.create_bam(os.path.join(path_out, params['output']), logger=logger)
     elif params.get('index_bam', False):
         if_exe_samtools.create_bam(
             os.path.join(path_out, params['output']),
             sort=True,
             max_memory=get_max_ram(params['num_processor']),
-            exe=bowtie2_exe,
             logger=logger,
         )
         if_exe_samtools.create_bam_index(
-            os.path.join(path_out, params['output'].replace('.sam', '.bam')), exe=bowtie2_exe, logger=logger
+            os.path.join(path_out, params['output'].replace('.sam', '.bam')), logger=logger
         )
 
     # Report
