@@ -101,13 +101,14 @@ def parsing_reports(config, time_fmt='delta', spreadsheet=True, completion_time_
                 # Percent for spreadsheet
                 if spreadsheet:
                     all_report[(step['step_name'], '%')] = None
-            elif step['step_name'] == 'counting':
+            elif 'features' in step:
                 for feat in step['features']:
-                    path_report = os.path.join(path_root, step['step_name'], feat['name']+'_report.json')
-                    if os.path.exists(path_report):
-                        parse_step(json.load(open(path_report)), (step['step_name'], feat['name']), all_report)
-                        if spreadsheet:
-                            all_report[(step['step_name'], feat['name'], '%')] = None
+                    if 'name' in feat:
+                        path_report = os.path.join(path_root, step['step_name'], feat['name']+'_report.json')
+                        if os.path.exists(path_report):
+                            parse_step(json.load(open(path_report)), (step['step_name'], feat['name']), all_report)
+                            if spreadsheet:
+                                all_report[(step['step_name'], feat['name'], '%')] = None
         # Get computing time
         path_compl = os.path.join(path_root, 'log', config['name']+'_compl.json')
         if os.path.exists(path_compl):
