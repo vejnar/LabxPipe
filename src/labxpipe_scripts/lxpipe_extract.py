@@ -39,6 +39,7 @@ def main(argv=None):
     parser.add_argument('-l', '--label', dest='use_label', action='store_true', help='Use label to rename')
     parser.add_argument('-r', '--reference', dest='use_reference', action='store_true', help='Use reference to rename')
     parser.add_argument('-w', '--lowercase', dest='lowercase', action='store_true', help='Lowercase filename')
+    parser.add_argument('-x', '--suffix', dest='suffix', action='store_true', help='Suffix input filename to output filename')
     parser.add_argument('-e', '--extensions', dest='search_extensions', action='store', help='File extensions to search (comma separated)')
     parser.add_argument('-d', '--dry_run', dest='dry_run', action='store_true', help='Dry run')
     parser.add_argument('--path_config', dest='path_config', action='store', help='Path to config')
@@ -129,11 +130,14 @@ def main(argv=None):
                 fname_ext = None
                 for ext in labxpipe.utils.all_exts + config['search_extensions']:
                     if fname.rfind(ext) != -1:
+                        fname_base = fname[: fname.rfind(ext)]
                         fname_ext = fname[fname.rfind(ext) :]
                         break
                 if fname_ext is None:
+                    fname_base = fname[: fname.rfind('.')]
                     fname_ext = fname[fname.rfind('.') :]
                 if fname_ext is None:
+                    fname_base = fname
                     fname_ext = fname
                 if args.use_label:
                     label = labxpipe.utils.label2var(config['ref_infos'][ref]['label_short'])
@@ -143,6 +147,8 @@ def main(argv=None):
                     name = label
                 elif args.use_reference:
                     name = ref
+                if args.suffix:
+                    name += f'_{fname_base}'
                 if args.lowercase:
                     name = name.lower()
                 path_out = os.path.join(config['path_extract'], name + fname_ext)
