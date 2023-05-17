@@ -32,9 +32,9 @@ def run(path_in, path_out, params):
     compress_output_cmd = params.get('compress_output_cmd')
     if params.get('compress_output', False) and compress_output_cmd is None:
         if params.get('create_bam', False) or params.get('index_bam', False):
-            compress_output_cmd = ['zstd', '--keep', '-12']
+            compress_output_cmd = ['zstd', '--keep', '-12', f"-T{params['num_processor']}"]
         else:
-            compress_output_cmd = ['zstd', '--rm', '-12']
+            compress_output_cmd = ['zstd', '--rm', '-12', f"-T{params['num_processor']}"]
         logger.info(f'Output compression using {compress_output_cmd}')
 
     # Input
