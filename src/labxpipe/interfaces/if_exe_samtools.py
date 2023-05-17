@@ -66,10 +66,20 @@ def sam_stats(bam_fname, exe=None, logger=None):
     if logger is None:
         import logging as logger
     # Command
-    cmd = [exe, 'stats', bam_fname]
+    cmd = [exe, 'stats']
+    # Input
+    if bam_fname.endswith('.zst'):
+        p_input = subprocess.Popen(['zstdcat', bam_fname], stdout=subprocess.PIPE)
+        p_stdin = p_input.stdout
+    else:
+        cmd.append(bam_fname)
+        p_stdin = None
     logger.info('Compute SAM statistics with ' + str(cmd))
     # Run
-    p = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, text=True)
+    p = subprocess.run(cmd, check=True, stdin=p_stdin, stdout=subprocess.PIPE, text=True)
+    # Wait for input process
+    if p_stdin is not None:
+        p_input.wait()
     # Parse
     report = {}
     for rec in [l.strip().split('\t') for l in p.stdout.split('\n') if l.startswith('SN')]:
