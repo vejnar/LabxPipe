@@ -100,7 +100,16 @@ def run(path_in, path_out, params):
     report = if_exe_minimap2.get_minimap2_report(os.path.join(path_out, 'minimap2_err.log'))
     # Output: If output is SAM
     if '-a' in others:
-        raw_report = if_exe_samtools.sam_stats(os.path.join(path_out, params['output']), logger=logger)
+        # Find output
+        if params.get('create_bam', False) or params.get('index_bam', False):
+            path_output_sam = params['output'].replace('.sam', '.bam')
+        elif params.get('compress_output', False):
+            # Get the first output file with an extension added by compression software
+            path_output_sam = os.path.basename(glob.glob(os.path.join(path_out, params['output'] + '.*'))[0])
+        else:
+            path_output_sam = params['output']
+        # Output
+        raw_report = if_exe_samtools.sam_stats(os.path.join(path_out, path_output_sam), logger=logger)
         report['output'] = raw_report['reads mapped']
     # Report
     logger.info('Report: Writing stats')
