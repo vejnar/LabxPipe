@@ -285,8 +285,21 @@ def main(argv=None):
                 count_labels.append(merge['label_short'])
                 count_sums.append(np.sum(series, axis=0))
 
+            # Uniquify labels
+            count_uniq_labels = []
+            label_counter = {}
+            for cl in count_labels:
+                if cl in label_counter:
+                    label_counter[cl] += 1
+                    new_label = f'{cl}_{label_counter[cl]}'
+                    logger.warning(f'Column {cl} not unique: renaming to {new_label}')
+                    count_uniq_labels.append(new_label)
+                else:
+                    count_uniq_labels.append(cl)
+                    label_counter[cl] = 1
+
             # Export
-            main = pd.concat([main, pd.DataFrame(np.vstack(count_sums).T, columns=count_labels)], axis=1)
+            main = pd.concat([main, pd.DataFrame(np.vstack(count_sums).T, columns=count_uniq_labels)], axis=1)
             main.to_csv(f"{run_name}_{main_column}_{feature_name}{config['suffix']}.csv", index=False)
 
             # Normalization
