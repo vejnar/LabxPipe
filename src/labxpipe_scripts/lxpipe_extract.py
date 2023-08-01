@@ -14,6 +14,7 @@
 import argparse
 import json
 import os
+import shutil
 import sys
 
 import labxdb
@@ -168,7 +169,7 @@ def main(argv=None):
         if config['dry_run']:
             print(f'Move {path_in} -> {path_out}')
         else:
-            os.rename(path_in, path_out)
+            shutil.move(path_in, path_out)
 
 
 if __name__ == '__main__':
