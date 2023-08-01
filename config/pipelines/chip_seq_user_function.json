@@ -1,0 +1,94 @@
+{
+   "name": "chip_seq_user_function",
+
+   "path_output": "/plus/scratch/users/charles/labxpipe/chip_seq_user_function",
+   "path_bowtie2_index": "/plus/scratch/sai/bowtie2_indices",
+
+   "path_local_steps": "config/user_steps",
+
+   "logging_level": "info",
+
+   "replicate_refs": [
+        "DIN000001",
+        "DIN000002"
+    ],
+
+   "analysis": [
+        {
+            "step_name": "aligning",
+            "step_function": "bowtie2",
+            "step_desc": "Aligning reads to genome.",
+            "force": false,
+            "index": "danrer_genome_all_ensembl_grcz11/seq",
+            "output": "accepted_hits.sam",
+            "options": [
+                "--no-unal",
+                "--no-discordant",
+                "--no-mixed"
+            ],
+            "index_bam": true
+        },
+        {
+            "step_name": "uniquify",
+            "step_function": "samtools_uniquify",
+            "step_desc": "Remove duplicates.",
+            "force": false,
+            "sort_by_name_bam": true,
+            "options": []
+        },
+        {
+            "step_name": "profile",
+            "step_function": "geneabacus",
+            "step_desc": "Genomic profile",
+            "force": false,
+            "inputs": [{"step": "uniquify", "fname": "accepted_hits_unique.bam", "type": "bam"}],
+            "features": [
+                {
+                    "name": "genome",
+                    "path_tab": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "read_min_overlap": 10,
+                    "profile_type": "all",
+                    "profile_no_coord_mapping": true,
+                    "profile_multi": "1000",
+                    "profile_formats": ["bedgraph", "binary+lz4"],
+                    "create_bigwig": true,
+                    "path_genome": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "options": [
+                        "--profile_norm",
+                        "--ignore_nh_tag"
+                    ]
+                }
+            ]
+        },
+        {
+            "step_name": "peak_calling",
+            "step_function": "macs3",
+            "step_input": "uniquify",
+            "step_desc": "Run MACS3.",
+            "force": true,
+            "subcmd": "callpeak",
+            "options": [
+                "--treatment", "accepted_hits_unique.bam",
+                "--format", "BAM",
+                "--gsize", "1.37e9",
+                "--broad",
+                "--keep-dup", "all",
+                "--name", "p3",
+                "--pvalue", "0.001",
+                "--broad-cutoff", "0.001"
+            ]
+        },
+        {
+            "step_name": "cleaning",
+            "step_desc": "Remove intermediate files",
+            "force": false,
+            "steps": [
+                {"step_name": "aligning", "pattern": "*.sam"},
+                {"step_name": "aligning", "pattern": "*.bam"},
+                {"step_name": "uniquify", "pattern": "*fixmate.bam"},
+                {"step_name": "uniquify", "pattern": "*sort.bam"},
+                {"step_name": "uniquify", "pattern": "*st.bam"}
+            ]
+        }
+    ]
+}

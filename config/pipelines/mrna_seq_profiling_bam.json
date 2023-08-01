@@ -58,6 +58,15 @@
             ]
         },
         {
+            "step_name": "bam",
+            "step_function": "samtools_sort",
+            "step_desc": "Convert to sorted BAM",
+            "force": false,
+            "input": "accepted_hits.sam.zst",
+            "sort_by_name_bam": false,
+            "options": []
+        },
+        {
             "step_name": "counting",
             "step_desc": "Counts for genes and transcripts.",
             "force": false,
@@ -78,11 +87,45 @@
             ]
         },
         {
+            "step_name": "profiling",
+            "step_function": "geneabacus",
+            "step_desc": "Profile",
+            "force": false,
+            "inputs": [{"step": "aligning", "fname": "accepted_hits.sam.zst", "type": "sam"}],
+            "features": [
+                {
+                    "name": "genome_plus",
+                    "path_tab": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "read_min_overlap": 10,
+                    "profile_type": "all-slice",
+                    "profile_no_coord_mapping": true,
+                    "profile_multi": "1000",
+                    "profile_formats": ["bedgraph", "binary+lz4"],
+                    "create_bigwig": true,
+                    "path_genome": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "options": ["--profile_norm", "--feature_strand", "1"]
+                },
+                {
+                    "name": "genome_minus",
+                    "path_tab": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "read_min_overlap": 10,
+                    "profile_type": "all-slice",
+                    "profile_no_coord_mapping": true,
+                    "profile_multi": "1000",
+                    "profile_formats": ["bedgraph", "binary+lz4"],
+                    "create_bigwig": true,
+                    "path_genome": "danrer_genome_all_ensembl_grcz11_chrom_length.tab",
+                    "options": ["--profile_norm", "--feature_strand", "-1"]
+                }
+            ]
+        },
+        {
             "step_name": "cleaning",
             "step_desc": "Remove intermediate files",
             "force": false,
             "steps": [
-                {"step_name": "preparing", "pattern": "*.fastq.lz4"}
+                {"step_name": "preparing", "pattern": "*.fastq.lz4"},
+                {"step_name": "bam", "pattern": "*.sam"}
             ]
         }
     ]

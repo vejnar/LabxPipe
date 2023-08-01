@@ -19,9 +19,26 @@
             "step_name": "preparing",
             "step_desc": "Trimming, renaming & filtering reads.",
             "force": false,
-            "ops_r1": [{"name": "rename", "base36": true},
-                       {"name": "trim", "end":3, "algo":"bktrim_paired", "epsilon":0.15, "epsilon_indel":0.1, "min_overlap":2, "keep":["no_trim","trim_exact","trim_align"], "sequence":"AGATCGGAAGAGCACACGTCTGAACTCCAGTCA", "sequence_paired":"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"},
-                       {"name": "length", "min_length": 20}],
+            "ops_r1": [
+                {
+                    "name": "rename",
+                    "base36": true
+                },
+                {
+                    "name": "trim",
+                    "algo": "bktrim_paired",
+                    "epsilon": 0.15,
+                    "epsilon_indel": 0.1,
+                    "min_overlap": 2,
+                    "keep": ["trim_exact", "trim_align", "no_trim"],
+                    "sequence": "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA",
+                    "sequence_paired": "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
+                },
+                {
+                    "name": "length",
+                    "min_length": 20
+                }
+            ],
             "plot_fastq": true,
             "zip_fastq_out": "lz4"
         },
@@ -31,7 +48,11 @@
             "force": false,
             "index": "danrer_genome_all_ensembl_grcz11/seq",
             "output": "accepted_hits.sam",
-            "options": ["--no-unal", "--no-discordant", "--no-mixed"],
+            "options": [
+                "--no-unal",
+                "--no-discordant",
+                "--no-mixed"
+            ],
             "create_bam": true
         },
         {
