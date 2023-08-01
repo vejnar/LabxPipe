@@ -30,7 +30,7 @@ import pyfnutils.log
 
 import labxpipe.steps
 
-def start_pipeline(run_cmd, path_pipeline, num_processor, run_ref, replicate_ref, http_url, http_login, http_password, http_path, http_db, failing):
+def start_pipeline(run_cmd, path_pipeline, num_processor, run_ref, replicate_ref, keep_failed_runs, http_url, http_login, http_password, http_path, http_db, failing):
     if failing.is_set() == False:
         try:
             cmd = run_cmd + ['--pipeline', path_pipeline, '--processor', str(num_processor)]
@@ -38,6 +38,8 @@ def start_pipeline(run_cmd, path_pipeline, num_processor, run_ref, replicate_ref
                 cmd.extend(['--run', run_ref])
             if replicate_ref is not None:
                 cmd.extend(['--replicate', replicate_ref])
+            if keep_failed_runs == True:
+                cmd.extend(['--keep_failed_runs'])
             if http_url is not None:
                 cmd.extend(['--http_url', http_url])
             if http_login is not None:
@@ -79,6 +81,7 @@ def main(argv=None):
     parser.add_argument('-n', '--replicate', dest='replicate_ref', action='store', help='Replicate')
     parser.add_argument('-w', '--worker', dest='num_worker', action='store', type=int, default=1, help='Number of run in parallel')
     parser.add_argument('-p', '--processor', dest='num_processor', action='store', type=int, default=2, help='Number of processor per run')
+    parser.add_argument('--keep_failed_runs', dest='keep_failed_runs', action='store_true', help='Don\'t skip the failed run(s)')
     parser.add_argument('--path_config', dest='path_config', action='store', help='Path to config')
     parser.add_argument('--http_url', '--labxdb_http_url', dest='labxdb_http_url', action='store', help='Database HTTP URL')
     parser.add_argument('--http_login', '--labxdb_http_login', dest='labxdb_http_login', action='store', help='Database HTTP login')
@@ -156,11 +159,11 @@ def main(argv=None):
                 for run_ref, replicate_ref, seq_ref in refs:
                     path_json_compl = os.path.join(config['path_output'], seq_ref, 'log', config['name']+'_compl.json')
                     if is_force or not os.path.exists(path_json_compl):
-                        jobs.append([job_cmd, config['path_pipeline'], config['num_processor'], run_ref, replicate_ref, config.get('labxdb_http_url'), config.get('labxdb_http_login'), config.get('labxdb_http_password'), config.get('labxdb_http_path'), config.get('labxdb_http_db'), failing])
+                        jobs.append([job_cmd, config['path_pipeline'], config['num_processor'], run_ref, replicate_ref, config.get('keep_failed_runs'), config.get('labxdb_http_url'), config.get('labxdb_http_login'), config.get('labxdb_http_password'), config.get('labxdb_http_path'), config.get('labxdb_http_db'), failing])
                     elif os.path.exists(path_json_compl):
                         ncompl = len([s for s in json.load(open(path_json_compl)) if s['status'] == 'done'])
                         if len(config['analysis']) > ncompl:
-                            jobs.append([job_cmd, config['path_pipeline'], config['num_processor'], run_ref, replicate_ref, config.get('labxdb_http_url'), config.get('labxdb_http_login'), config.get('labxdb_http_password'), config.get('labxdb_http_path'), config.get('labxdb_http_db'), failing])
+                            jobs.append([job_cmd, config['path_pipeline'], config['num_processor'], run_ref, replicate_ref, config.get('keep_failed_runs'), config.get('labxdb_http_url'), config.get('labxdb_http_login'), config.get('labxdb_http_password'), config.get('labxdb_http_path'), config.get('labxdb_http_db'), failing])
                 # Add jobs to queue
                 fs = []
                 if len(jobs) == 0:
@@ -256,6 +259,9 @@ def main(argv=None):
             elif 'replicate_ref' in config:
                 # Query: Get all run(s)
                 runs = dbl.post('run', {'search_criterion':['3 replicate_ref EQUAL '+config['replicate_ref']], 'sort_criterion':['3 run_order ASC'], 'limit':'ALL'})
+                # Filter failed run(s)
+                if not config['keep_failed_runs']:
+                    runs = [r for r in runs if ('failed' not in r) or ('failed' in r and r['failed'] == False)]
                 # First run as reference run
                 run = runs[0]
             # Copy-paste info to config
