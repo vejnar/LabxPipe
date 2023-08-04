@@ -11,6 +11,18 @@
     * Branching is easily achieved be defining a previous step (using `step_input` parameter) allowing users to create any dependency between tasks.
 * Parallelized using robust asynchronous threads from the Python standard library.
 
+## Commands
+
+LabxPipe provides a unique `lxpipe` command with multiples sub-commands. Running a pipeline would typically involve using these sub-commands:
+
+<img src="https://raw.githubusercontent.com/vejnar/LabxPipe/main/img/commands.svg" alt="LabxPipe" />
+
+The output of multiple pipelines executed using `lxpipe run` can be combined to merge gene counts or create profiles and trackhubs with the following sub-commands:
+
+<img src="https://raw.githubusercontent.com/vejnar/LabxPipe/main/img/multi_commands.svg" alt="LabxPipe" />
+
+See examples to understand how each sub-command works.
+
 ## Examples
 
 See JSON files in `config/pipelines` of this repository.
